@@ -72,7 +72,47 @@ def get_one_people(people_id):
         return jsonify({"sorry :(": "This people id doesn't exist",
                         "id": people_id})
 
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def get_one_planet(planet_id):
+    one_planet = Planets.query.filter_by(id = planet_id).first()
+    if (one_planet):
+        return jsonify({
+            "Hello, this is the planet you are looking for" : one_planet.serialize(),
+            "id" : planet_id
+        })
+
+@app.route('/favorite/people/<int:people_id>', methods=['POST', 'DELETE'])
+def add_user_favorite(people_id):
+    body = request.get_json()#conseguir los datos del usuario
+    character = People.query.get(people_id)
+    char = character.__repr__()
+
+    if request.method == 'POST': # we can understand what type of request we are handling using a conditional
+        new_favorite = Fav_people( user = body['id'], people = people_id)
+        db.session.add(new_favorite)
+        db.session.commit()
+        return jsonify({
+                "agregaste como favorito a" : char,
+                "con el id": people_id
+            })
+
+    else:     
+        deleted = character.__repr__()
+        db.session.delete(character)
+        db.session.commit()   
+        return jsonify({
+                "deleted from favorites": char,
+                "id": people_id
+            })
+
+# <title>400 Bad Request</title> post delete
+# <h1>Bad Request</h1>
+# <p>Did not attempt to load JSON data because the request Content-Type was not &#39;application/json&#39;.</p>
+
+
+
+
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
-    app.run(host='0.0.0.0', port=PORT, debug=False)
+    app.run(host='0.0.0.0', port=PORT, debug=True)

@@ -27,7 +27,7 @@ class People(db.Model):
     gender = db.Column(db.String(120), unique=False, nullable=True)
 
     def __repr__(self):
-        return '<User %r>' % self.name
+        return 'People %r' % self.name
     def serialize(self):
         return {
             "id": self.id,
@@ -43,7 +43,7 @@ class Planets(db.Model):
     population = db.Column(db.Integer, unique=False, nullable=True)
 
     def __repr__(self):
-        return '<User %r>' % self.name
+        return '<Planet %r>' % self.name
 
     def serialize(self):
         return {
