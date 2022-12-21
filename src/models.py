@@ -4,6 +4,7 @@ db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120), unique=False, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
@@ -15,5 +16,73 @@ class User(db.Model):
         return {
             "id": self.id,
             "email": self.email,
+            "username": self.username
             # do not serialize the password, its a security breach
         }
+
+class People(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    height = db.Column(db.Integer, unique=False, nullable=True)
+    gender = db.Column(db.String(120), unique=False, nullable=True)
+
+    def __repr__(self):
+        return '<User %r>' % self.name
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "height": self.height,
+            "gender": self.gender
+        }
+
+class Planets(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    climate = db.Column(db.String(120), unique=False, nullable=True)
+    population = db.Column(db.Integer, unique=False, nullable=True)
+
+    def __repr__(self):
+        return '<User %r>' % self.name
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "climate": self.climate,
+            "population": self.population
+        }
+
+class Fav_people(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    people = db.Column(db.Integer, db.ForeignKey('people.id'))
+    people_rel = db.relationship('People')
+
+    def __repr__(self):
+        return  '<Fav_people %r>' % self.id
+
+    def serialize(self):
+         return {
+            "id": self.id,
+            "user": self.user,
+            "people": self.people,
+        }
+
+
+class Fav_planets(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    planet = db.Column(db.Integer, db.ForeignKey('planets.id'))
+    planets_rel = db.relationship('Planets')
+
+    def __repr__(self):
+        return  '<Fav_planets %r>' % self.id
+
+    def serialize(self):
+         return {
+            "id": self.id,
+            "user": self.user,
+            "planet": self.planet,
+        }
+
