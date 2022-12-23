@@ -96,22 +96,27 @@ def get_one_planet(planet_id):
 
 @app.route('/users/favorites', methods=['GET'])
 def get_favorites():
-    # [0].__repr__//(mostrando al personaje en la posicion 0 y a la funcion repr  para dar su identificacion
-    all_users = User.query.all()
-    users_serialize = list(map(lambda x: x.serialize(), all_users))
+    body = request.get_json()  # se envia el id del usuario en el body al hacer el request {"id":1}
+    user_id=body['id']#[]para acceder las propiedades del dictionary
+    current_user= User.query.get(user_id)
+    current_user= current_user.__repr__()#muestra el nombre del current_user ej: <user : 'admin'>
 
-    body = request.get_json()  # conseguir los datos del usuario
+    favorite_people = Fav_people.query.all()#trayendo todos los favoritos de todos los usuarios
+    favorite_people_ser = list(map(lambda x: x.serialize(), favorite_people))#para convertirlos en diccionarios y mostrar sus valores
+    # if favorite_people_ser
+    #print("id en la posicion 1:",favorite_people_ser[1]['user'])#accediendo al id_usuario dentro del primer favorito registrado 
+    findingwaldo = list(map(lambda x: x['user'], favorite_people_ser))# muestra todos los id_usuario
+    print(findingwaldo)
 
-    favorite_people = Fav_people.query.all()
-    favorite_people_ser = list(map(lambda x: x.serialize(), favorite_people))
-    favorite_planets = Fav_planets.query.all()
-    favorite_planets_ser = list(map(lambda x: x.serialize(), favorite_planets))
+#favorite_people_ser es una lista de dictionarys el map accede a la lista y el [] accede al key value del dictionary
+    # favorite_planets = Fav_planets.query.all()
+    # favorite_planets_ser = list(map(lambda x: x.serialize(), favorite_planets))
 
-    return jsonify({
-        "favorite people": favorite_people_ser, 
-        "favorite planets": favorite_planets_ser
-        })
-
+    # return jsonify({
+    #     "favorite people": favorite_people_ser, 
+    #     "favorite planets": favorite_planets_ser
+    #     })
+    return jsonify({"current user":current_user})
 
 @app.route('/favorite/people/<int:people_id>', methods=['POST'])
 def modify_user_favorite(people_id):
