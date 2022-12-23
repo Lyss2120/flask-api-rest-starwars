@@ -58,6 +58,8 @@ class Fav_people(db.Model):
     user = db.Column(db.Integer, db.ForeignKey('user.id'))
     people = db.Column(db.Integer, db.ForeignKey('people.id'))
     people_rel = db.relationship('People')
+    user_rel = db.relationship('User')
+    
 
     def __repr__(self):
         return  '<Fav_people %r>' % self.id
@@ -69,12 +71,13 @@ class Fav_people(db.Model):
             "people": self.people,
         }
 
-
+#esta accediendo a cada list de favoritos en vez de a cada usuario mostrando sus favoritos....
 class Fav_planets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.Integer, db.ForeignKey('user.id'))
     planet = db.Column(db.Integer, db.ForeignKey('planets.id'))
     planets_rel = db.relationship('Planets')
+    user_rel = db.relationship('User')
 
     def __repr__(self):
         return  '<Fav_planets %r>' % self.id
