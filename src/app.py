@@ -125,6 +125,7 @@ def get_favorites():
          planets_id = list(map(lambda x: x['planet'] , user_fav_planets))#accede  a los ids de los planets, tengo que elegir de tabla planets esos ids y acceder al name de cada id, con un map?
          planets_name = list(map(lambda x: Planets.query.get(x) , planets_id))# acceder al name de cada id, [planets 'Luke Skywalker', planets 'crpo', planets 'r2d2']
          planets_name_repr= list(map(lambda x: x.__repr__(), planets_name))
+
          if (people_name):
             return jsonify({"this are the favorites from the user": current_user,
                          "favorite people": people_name_repr,
@@ -132,8 +133,8 @@ def get_favorites():
                          # "exp":people_name sale TypeError: Object of type People is not JSON serializable
                          })
          else: return jsonify({
-                            "you added to favorites this people id": people_id
-         })
+                            "this people id has been added to favorites": people_id
+                            })
     else:
         return jsonify({ "you have to send de user id in a json type body": "ej: {'id':1}" })
 
@@ -185,28 +186,12 @@ def add_favplanet(planet_id):
                     })
 
 
-# @app.route('/favorite/people/<int:people_id>', methods=['DELETE'])# intentando borrar fav del current user
-# def delete_user_favorite(people_id):
-#         user = request.get_json()['id']
-#         current_user = User.query.get(user).__repr__()
-#         character = People.query.get(people_id)  # personaje con el people_id
-
-#         current_user_favs = Fav_people.query.filter_by(user=user) #favs del user
-#         user_favs_ser = list( map(lambda x: x.serialize() , current_user_favs)) #serializados, 
-#         to_delete = Fav_people.query.get(people_id)  # personaje con el people_id. var con user favorites y borrar de ahi ?
-#         print(user_favs_ser)
-#         db.session.delete(to_delete)
-#         db.session.commit()
-#         return jsonify({
-#                          "user": current_user,
-#                          "deleted from favorites": character.__repr__(),
-#                          })
-
-
+#esta ruta borra un favorito del current user, para eso enviar el id del user en el body del request
 @app.route('/favorite/people/<int:people_id>', methods=['DELETE'])
 def delete_favorite_people(people_id):
-
-    deleted_people = Fav_people.query.filter_by(people=people_id).first()#filtra personaje a eliminar y lo retorna sin array
+    user = request.get_json()['id'] 
+    
+    deleted_people = Fav_people.query.filter_by(user=user, people=people_id).first()#filtra personaje a eliminar y lo retorna sin array
     db.session.delete(deleted_people)
     db.session.commit()
     return jsonify({"deleted people from favorites": deleted_people.serialize()})
@@ -214,8 +199,9 @@ def delete_favorite_people(people_id):
 
 @app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
 def delete_favorite_planet(planet_id):
+    user = request.get_json()['id'] 
 
-    deleted_planet = Fav_planets.query.filter_by(planet=planet_id).first()#filtra personaje a eliminar y lo retorna sin array
+    deleted_planet = Fav_planets.query.filter_by(user=user, planet=planet_id).first()#filtra personaje a eliminar y lo retorna sin array
     db.session.delete(deleted_planet)
     db.session.commit()
     return jsonify({"deleted planet from favorites": deleted_planet.serialize()})

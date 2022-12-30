@@ -35,6 +35,10 @@ class People(db.Model):
             "height": self.height,
             "gender": self.gender
         }
+    def serialize_name(self):
+        return {
+            "name": self.name,
+        }
 
 class Planets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,14 +56,16 @@ class Planets(db.Model):
             "climate": self.climate,
             "population": self.population
         }
-
+    def serialize_name(self):
+        return {
+            "name": self.name,
+        }
 class Fav_people(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.Integer, db.ForeignKey('user.id'))
     people = db.Column(db.Integer, db.ForeignKey('people.id'))
     people_rel = db.relationship('People')
-    user_rel = db.relationship('User')
-    
+    user_rel = db.relationship('User')    
 
     def __repr__(self):
         return  '<Fav_people %r>' % self.id
