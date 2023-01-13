@@ -237,20 +237,21 @@ def favplanet(planet_id):
         return jsonify({"deleted planet from favorites": del_planet_name})
 
 
+#para POST enviar name, height, gender en body; para DELETE enviar el people id; para PUT enviar people id, name, height, gender
 @app.route('/modifiedPeople', methods=['PUT', 'POST', 'DELETE'])
 def modified_people():
     body = request.get_json()
     if body is None:
         return "The request body is null", 400
+
     if request.method == "POST":
-        if 'name' or 'height' not in body:
-            return 'You need to specify the name, and height in a body json', 400
+        if 'name' not in body:
+            return 'You need to specify the new people name, height, gender in a body json. If the people dont have a gender send gender: "" ', 400
         else:
             name = body['name']
             height = body['height']
             gender = body['gender']
-            new_people = People(name=name, height=height,
-                            gender=gender)
+            new_people = People(name=name, height=height, gender=gender)
 
             db.session.add(new_people)
             db.session.commit()
@@ -259,22 +260,22 @@ def modified_people():
                 "height": height,
                 "gender": gender,
             }), 200
+
     if request.method == "DELETE":
         if 'id' not in body:
-            return 'You need to specify the id in a body json ej. {"id": 1}', 400
+            return 'You need to specify the people id in a body json ej. {"id": 1}', 400
         else:
             people_id = body['id']
-            # filtra personaje a eliminar y lo retorna como objeto
             people_to_delete = People.query.filter_by(id=people_id).first()
             people_name = People.query.get(people_id).__repr__()
 
             db.session.delete(people_to_delete)
             db.session.commit()
-            return jsonify({"deleted user": people_name}), 200
+            return jsonify({"deleted people": people_name}), 200
 # PUT
     else:
         if 'id' not in body:
-            return 'You need to specify the id in a body json ej. {"id": 1}', 400
+            return 'You need to specify the people id in a body json ej. {"id": 1}', 400
         else:
             people_id = body['id']
             # filtra personaje y lo retorna como objeto// probar a ver si funciona
@@ -292,6 +293,65 @@ def modified_people():
                             "height": people.height,
                             "gender": people.gender,
                                             }), 200
+
+
+@app.route('/modifiedPlanet', methods=['PUT', 'POST', 'DELETE'])
+def modified_planet():
+    body = request.get_json()
+    if body is None:
+        return "The request body is null", 400
+
+    if request.method == "POST":
+        if 'name' not in body:
+            return 'You need to specify the new planet name, population, climate in a body json', 400
+        else:
+            name = body['name']
+            population = body['population']
+            climate = body['climate']
+            new_planet = Planet(name=name, population=population, climate=climate)
+
+            db.session.add(new_planet)
+            db.session.commit()
+            return jsonify({
+                "A new planet was added!": name,
+                "population": population,
+                "climate": climate,
+            }), 200
+
+    if request.method == "DELETE":
+        if 'id' not in body:
+            return 'You need to specify the planet id in a body json ej. {"id": 1}', 400
+        else:
+            planet_id = body['id']
+            planet_to_delete = Planet.query.filter_by(id=planet_id).first()
+            planet_name = Planet.query.get(planet_id).__repr__()
+
+            db.session.delete(planet_to_delete)
+            db.session.commit()
+            return jsonify({"deleted planet": planet_name}), 200
+# PUT
+    else:
+        if 'id' not in body:
+            return 'You need to specify the planet id in a body json ej. {"id": 1}', 400
+        else:
+            planet_id = body['id']
+            # filtra personaje y lo retorna como objeto// probar a ver si funciona
+            planet = Planet.query.get(planet_id)
+            planet_name = Planet.__repr__()
+
+            planet.name = body['name']
+            planet.population = body['population']
+            planet.climate = body['climate']
+
+            db.session.commit()
+            return jsonify({
+                            "planet modified": planet_name,
+                            "name": planet.name,
+                            "population": planet.population,
+                            "climate": planet.climate,
+                                            }), 200
+
+
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
