@@ -37,7 +37,7 @@ class People(db.Model):
         }
     def serialize_name(self):
         return {
-            "name": self.name,
+            "name": self.name, #no funciona con listass, la idea es ocuparlo como el serialize...que si funciona con listas
         }
 
 class Planets(db.Model):
