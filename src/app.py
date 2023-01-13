@@ -67,7 +67,7 @@ def get_planets():
 
 # para mostrar todos los usuarios, o crear/borra uno nuevo enviándolo en el body con los datos especificados en la ruta
 @app.route('/users', methods=['GET', 'POST', 'DELETE'])
-def get_user():
+def modified_user():
     body = request.get_json()
     if body is None:
         return "The request body is null", 400
@@ -177,7 +177,7 @@ def get_user_favorites():
 
 @app.route('/favorite/people/<int:people_id>', methods=['POST', 'DELETE'])
 # enviar el id del usuario en el body al hacer el request ej: {"id":1}// revisar si se puede crear usuario desde postman
-def add_favPeople(people_id):
+def favPeople(people_id):
     body = request.get_json()
     if body is None:
         return "The request body is null", 400
@@ -207,7 +207,7 @@ def add_favPeople(people_id):
 
 
 @app.route('/favorite/planet/<int:planet_id>', methods=['POST', 'DELETE'])
-def add_favplanet(planet_id):
+def favplanet(planet_id):
     body = request.get_json()
     if body is None:
         return "The request body is null", 400
@@ -236,6 +236,62 @@ def add_favplanet(planet_id):
         db.session.commit()
         return jsonify({"deleted planet from favorites": del_planet_name})
 
+
+@app.route('/modifiedPeople', methods=['PUT', 'POST', 'DELETE'])
+def modified_people():
+    body = request.get_json()
+    if body is None:
+        return "The request body is null", 400
+    if request.method == "POST":
+        if 'name' or 'height' not in body:
+            return 'You need to specify the name, and height in a body json', 400
+        else:
+            name = body['name']
+            height = body['height']
+            gender = body['gender']
+            new_people = People(name=name, height=height,
+                            gender=gender)
+
+            db.session.add(new_people)
+            db.session.commit()
+            return jsonify({
+                "A new people was added!": name,
+                "height": height,
+                "gender": gender,
+            }), 200
+    if request.method == "DELETE":
+        if 'id' not in body:
+            return 'You need to specify the id in a body json ej. {"id": 1}', 400
+        else:
+            people_id = body['id']
+            # filtra personaje a eliminar y lo retorna como objeto
+            people_to_delete = People.query.filter_by(id=people_id).first()
+            people_name = People.query.get(people_id).__repr__()
+
+            db.session.delete(people_to_delete)
+            db.session.commit()
+            return jsonify({"deleted user": people_name}), 200
+# PUT
+    else:
+        if 'id' not in body:
+            return 'You need to specify the id in a body json ej. {"id": 1}', 400
+        else:
+            people_id = body['id']
+            # filtra personaje y lo retorna como objeto// probar a ver si funciona
+            people = People.query.get(people_id)
+            people_name = people.__repr__()
+
+            people.name = body['name']
+            people.height = body['height']
+            people.gender = body['gender']
+
+            db.session.commit()
+            return jsonify({
+                            "people modified": people_name,
+                            "name": people.name,
+                            "height": people.height,
+                            "gender": people.gender,
+                                            }), 200
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
